@@ -35,10 +35,10 @@ interface LazyframeSettings extends OverrideAbleSettings {
 
 const Lazyframe = () => {
     const findVendorIdAndQuery = new RegExp(
-        /^(?:https?:\/\/)?(?:www\.)?(youtube-nocookie|youtube|vimeo)(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w-_]+)(?:\&|\?|\/\?)?(.+)?$/
+        /^(?:https?:\/\/)?(?:www\.)?(youtube-nocookie|youtube|vimeo|webstream)(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w-_]+)(?:\&|\?|\/\?)?(.+)?$/
     )
     const findWebstreamId = new RegExp(
-        /^(?:https?:\/\/)?(?:www\.)webstream.eu\/channel\/(.*)$/
+        /^(?:https?:\/\/)?(?:www\.)?webstream\.eu\/channel\/(.+)$/
     )
 
     const youtube = {
@@ -152,8 +152,10 @@ const Lazyframe = () => {
             throw new Error('You must supply a data-src on the node')
         }
 
-        const [, vendorObj, id, params] = src.match(findVendorIdAndQuery) || []
+        let [, vendorObj, id, params] = src.match(findVendorIdAndQuery) || []
         const vendor = vendorObj ? (vendorObj as LazyframeSettings['vendor']) : null
+        let webstreamId;
+
         if (vendor) {
             if (vendor === 'youtube-nocookie') {
                 node.setAttribute('data-vendor', 'youtube')
@@ -161,7 +163,7 @@ const Lazyframe = () => {
                 node.setAttribute('data-vendor', vendor)
             }
             if (vendor == 'webstream') {
-                const [, id] = src.match(findWebstreamId) || []
+                id = (src.match(findWebstreamId) || [])[1]
             }
         }
 
@@ -315,7 +317,7 @@ const Lazyframe = () => {
         } else if (vendor === 'vimeo') {
             embed = `https://player.vimeo.com/video/${id}/?${query}`
         } else if (vendor === 'webstream') {
-            embed = `https://www.webstream.eu/channel/${id}/embed/?${query}`
+            embed = `https://www.webstream.eu/channel/${id}/embed?${query}`
         }
 
         if (id) {
