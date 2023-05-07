@@ -35,10 +35,10 @@ interface LazyframeSettings extends OverrideAbleSettings {
 
 const Lazyframe = () => {
     const findVendorIdAndQuery = new RegExp(
-        /^(?:https?:\/\/)?(?:www\.)?(youtube-nocookie|youtube|vimeo|webstream)(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w-_]+)(?:\&|\?|\/\?)?(.+)?$/
+        /^(?:https?:\/\/)?(?:www\.)?(youtube-nocookie|youtube|vimeo|webstream)(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)(?:\&|\?|\/\?)?(.+)?$/
     )
-    const findWebstreamId = new RegExp(
-        /^(?:https?:\/\/)?(?:www\.)?webstream\.eu\/channel\/(.+)$/
+    const findWebstreamIdAndQuery = new RegExp(
+        /^(?:https?:\/\/)?(?:www\.)?webstream\.eu\/channel\/([A-Za-z0-9-_\/]+)(?:\?)?(.*)$/
     )
 
     const youtube = {
@@ -163,12 +163,11 @@ const Lazyframe = () => {
                 node.setAttribute('data-vendor', vendor)
             }
             if (vendor == 'webstream') {
-                id = (src.match(findWebstreamId) || [])[1]
+                [,id, params] = (src.match(findWebstreamIdAndQuery) || [])
             }
         }
 
-        const query = `autoplay=${settings.autoplay ? 1 : 0}${params ? '&' + params : ''
-            }`
+        const query = `${settings.autoplay ? 'autoplay=1' : ''}${settings.autoplay && params ? '&' : ''}${params}`
 
         return {
             src,
